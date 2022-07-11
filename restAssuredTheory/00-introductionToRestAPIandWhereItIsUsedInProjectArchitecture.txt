@@ -1,0 +1,76 @@
+API - Application Programming Interface
+
+What is an API  actually?
+
+Lets consider a application , it has front end where we can select a city and hotel room
+what we can see is a frontend ,where our details are stored is backend
+say we have a createReservation() method that checks the room availability
+
+we want some other application , that should show our website , but that application should know some information instead of handover complete code
+we just give required information using an api
+
+
+say some application written in angular internally typescript for frontend , but in backend is made using java
+we can use API to communicate between frontend 
+
+================================================================================================================================================
+Realtime usage of API:
+Frontend  --------> http Request/httpResponse ------->Mariote API ---------> Backend code (java)------>database[stores data]
+(angular)
+
+API acts as a middleman between frontend and backend
+API will also help in connecting one of our website to other website
+================================================================================================================================================
+
+Understanding GET,POST,PUT,DELETE Http crud operations of API:
+
+REST API is mostly used , follows some standards while building rest apis
+REST is a lightweight , legacy services uses SOAP
+
+REST API testing is very much necessary
+REST is architectural design which we have to follow
+
+Endpoint/BaseURL : address where api is hosted on server
+
+HTTP methods which are commonly used to communicate with rest apis
+GET,POST,PUT,DELETE - CRUD[create read update delete]
+
+GET: GET method is used to retrieve information from server , using given URI
+
+POST: is used to send data to server , say we r registering to application
+
+PUT: replaces the existing information on server i.e to update some info 
+
+DELETE: to delete
+================================================================================================================================================
+
+What are path , query parameters and headers in REST API?
+
+google.com--->baseURI
+
+*********resources*********:
+resources represent API/collection which can be accessed from server
+google.com/maps  --->maps is resources
+google.com/search  ---->search is resources
+google.com/images - ---> images is resources
+
+
+*********path parameters:*********
+Path parameters are variable parts of a URL path . they are typically used to point to a specific
+resource within a collection , such as a user identified by ID
+https://www.google.com/images/1123343  ----> 1123343 is a path parameter
+
+***********Query parameters*********:
+Query parameters is used to sort/filter the resources
+query parameters are identified with ?
+https://amazon.com/orders?sort_by=2/20/2022 ------->  ?sort_by=2/20/2022 is query parameter
+query parameters are seperated by &
+
+
+Headers/Cookies:
+headers represent the meta data associated with API request and response .we were sending additional details to API to process our request
+example: authorization details
+
+EndPoint request URL can be constructed as below
+BaseURL/resource/(Query/Path)Parameters
+================================================================================================================================================
