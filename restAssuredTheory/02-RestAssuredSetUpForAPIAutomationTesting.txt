@@ -1,0 +1,133 @@
+What is Rest Assured?
+Rest Assured is a java based library that is used to test RestFul WebServices/APIs
+
+3 simple steps to setup rest assured project
+	Install java and set in System variables
+	Install eclipse and create java maven project
+	Configure rest assured jars into project
+
+go to jdk path[upto jdk - inside this we have bin folder]
+env variables 
+System variables - New
+JAVA_HOME - path
+
+download eclispe that has maven integration
+
+
+Open eclipse
+File - new - java project
+right click ---> configure ---> convert to maven project ---> finish
+This adds pom.xml file
+in this we give dependencies , so that jars can be added automatically
+
+add the rest assured dependency , testng , hamcrest[used for assertion]
+
+	<dependencies>
+		<!-- https://mvnrepository.com/artifact/io.rest-assured/rest-assured -->
+		<dependency>
+			<groupId>io.rest-assured</groupId>
+			<artifactId>rest-assured</artifactId>
+			<version>5.0.1</version>
+			<scope>test</scope>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.testng/testng -->
+		<dependency>
+			<groupId>org.testng</groupId>
+			<artifactId>testng</artifactId>
+			<version>7.4.0</version>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.hamcrest/hamcrest -->
+		<dependency>
+			<groupId>org.hamcrest</groupId>
+			<artifactId>hamcrest</artifactId>
+			<version>2.2</version>
+			<scope>test</scope>
+		</dependency>
+
+	</dependencies>
+
+Maven - build management tool
+================================================================================================================================================================================
+Build Rest API automation test to add place and validate status code:
+
+create a package
+create a class
+
+
+		/*
+		 * RestAssured works on 3 principles
+		 * 
+		 * given  - all input details we are giving for the API are wrapped under given method
+		 * 			[queryParam() , header() , body() will be in given()]
+		 * 
+		 * when   - submit the API [resource and http method will be in when]
+		 * 
+		 * 
+		 * then   -  validate the response[any validations will be in then() method]
+		 * 
+		 * to log everything we use log().all()
+		 */
+
+
+
+
+if the body we pasted is not getting escape sequences in eclipse
+go to preferences ---> search typing --> checkmark escape text when pasting into a string literal
+================================================================================================================================================================================
+
+package basics;
+import io.restassured.RestAssured;
+import static io.restassured.RestAssured.*;//add this static import manually
+
+public class Basics {
+	
+	public static void main(String[] args) {
+		
+		//validate if Add place API is working as expected
+		
+		/*
+		 * RestAssured works on 3 principles
+		 * 
+		 * given  - all input details we are giving for the API are wrapped under given method
+		 * 			[queryParam() , header() , body() will be in given()]
+		 * 
+		 * when   - submit the API [resource and http method will be in when]
+		 * 
+		 * 
+		 * then   -  validate the response[any validations will be in then() method]
+		 * 
+		 * to log everything we use log().all()
+		 */
+		
+		//Step1: set the baseURI
+		RestAssured.baseURI = "https://rahulshettyacademy.com";
+		
+		//step2
+		given().log().all().queryParam("key", "qaclick123").header("Content-Type","application/json")
+		.body("{\r\n"
+				+ "  \"location\": {\r\n"
+				+ "    \"lat\": -38.383494,\r\n"
+				+ "    \"lng\": 33.427362\r\n"
+				+ "  },\r\n"
+				+ "  \"accuracy\": 50,\r\n"
+				+ "  \"name\": \"Frontline house\",\r\n"
+				+ "  \"phone_number\": \"(+91) 983 893 3937\",\r\n"
+				+ "  \"address\": \"29, side layout, cohen 09\",\r\n"
+				+ "  \"types\": [\r\n"
+				+ "    \"shoe park\",\r\n"
+				+ "    \"shop\"\r\n"
+				+ "  ],\r\n"
+				+ "  \"website\": \"http://google.com\",\r\n"
+				+ "  \"language\": \"French-IN\"\r\n"
+				+ "}").when().post("maps/api/place/add/json")
+		.then().log().all().assertThat().statusCode(200);
+		
+	}
+
+}
+
+
+
+================================================================================================================================================================================

@@ -50,9 +50,9 @@ google.com--->baseURI
 
 *********resources*********:
 resources represent API/collection which can be accessed from server
-google.com/maps  --->maps is resources
+google.com/maps  --->	maps is resources
 google.com/search  ---->search is resources
-google.com/images - ---> images is resources
+google.com/images ----> images is resources
 
 
 *********path parameters:*********
@@ -74,3 +74,25 @@ example: authorization details
 EndPoint request URL can be constructed as below
 BaseURL/resource/(Query/Path)Parameters
 ================================================================================================================================================
+HTTP methods which are commonly used to communicate with Rest API’s are
+
+GET, POST, PUT, and DELETE
+
+GET- The GET method is used to extract information from the given server using a given URI. While using GET request, 
+	it should only extract data and should have no other effect on the data. No Payload/Body required
+
+How to send input data in GET?
+Ans: Using Query Parameters
+
+
+POST- A POST request is used to send data to the server, for example, customer information, file upload, etc. using HTML forms.
+
+How to send input data in POST?
+Ans: Using Form Parameters /Body Payload
+
+
+
+
+PUT- Replaces all current representations of the target resource with the uploaded content.
+
+DELETE- Removes all current representations of the target resource given by a URI.
