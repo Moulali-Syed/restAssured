@@ -1,0 +1,253 @@
+Why dynamic json payloads are important to understand
+
+Advanced Payload creation strategies:
+
+Dynamically build json payload with external data inputs:
+
+for every run we need different inputs  
+
+
+Parameterize the API tests with multiple data sets:
+we want different data sets to be run for a single testcase
+
+how to send static json payload directly into POST method of rest assured
+
+Feed json payload from using excel using HashMap
+******************************************************************************************************************************
+lets see all the above different strategies , to feed our payload
+lets use library API
+
+Library API :
+BaseURI : http://216.10.245.166
+ 
+1.	Resource : Library/Addbook.php       Method : POST
+ 
+Input Payload : Json:
+{
+
+"name":"Learn Appium Automation with Java",
+"isbn":"bcd",
+"aisle":"227",
+"author":"John foe"
+}
+ 
+Output Json 
+{
+   "Msg": "successfully added",
+   "ID": "bcd227"
+} 
+ 
+ 
+1.	Resource : /Library/GetBook.php?AuthorName=somename         Method : GET 
+ 
+Output Json :
+Output the array of Json object books with all below  details 
+ 
+{
+ 
+Name : “bookname”   ( String)
+Isbn :  “A2fdsf”   (String)
+Aisle : 32 (Integer)
+ 
+}
+ 
+ 
+1.	Resource : Library/GetBook.php?ID=3389      - Method : GET 
+ 
+Output Json :
+{
+      "book_name": "Selenium automation using Java",
+      "isbn": "a23hd738",
+      "aisle": "1223"
+   } 
+ 
+1.	Resource :/Library/DeleteBook.php      Method : POST
+ 
+Input Payload : Json:
+{
+ 
+"ID" : "a23h345122332"
+ 
+} 
+Output Response :
+{
+
+msg : book is successfully deleted”
+ 
+}
+******************************************************************************************************************************
+Add book http method , inside the rest assured
+
+package basics;
+
+import org.testng.annotations.Test;
+
+import file.Payload;
+import file.ReUsableMethods;
+import io.restassured.RestAssured;
+import io.restassured.path.json.JsonPath;
+
+import static io.restassured.RestAssured.*;
+
+public class DDynamicJson {
+
+	@Test
+	public void addBook() {
+		RestAssured.baseURI = "http://216.10.245.166";
+		
+		String response = given().log().all().header("Content-Type","application/json").
+		body(Payload.addBook())
+		.when()
+		.post("/Library/Addbook.php")
+		.then().assertThat().statusCode(200)
+		.extract().response().asString();
+		
+		JsonPath js = ReUsableMethods.rawToJson(response);
+		String id = js.get("ID");
+		System.out.println(id);
+	}
+}
+
+	public static String addBook() {
+		String payload =  "{\r\n"
+				+ "\r\n"
+				+ "\"name\":\"Learn Appium Automation with all of us Java by Rahul\",\r\n"
+				+ "\"isbn\":\"bcdeef\",\r\n"
+				+ "\"aisle\":\"221244\",\r\n"
+				+ "\"author\":\"Johneryny foe\"\r\n"
+				+ "}";
+		return payload;
+	}
+
+******************************************************************************************************************************
+
+Sending parameters to payload from Test:
+
+
+	@Test
+	public void addBook() {
+		RestAssured.baseURI = "http://216.10.245.166";
+		
+		String response = given().log().all().header("Content-Type","application/json").
+		body(Payload.addBook("asfdhdge","64632"))
+		.when()
+		.post("/Library/Addbook.php")
+		.then().assertThat().statusCode(200)
+		.extract().response().asString();
+		
+		JsonPath js = ReUsableMethods.rawToJson(response);
+		String id = js.get("ID");
+		System.out.println(id);
+
+		//after this we delete the book
+
+	}
+
+
+	public static String addBook(String aisle, String isbn) {
+		String payload =  "{\r\n"
+				+ "\r\n"
+				+ "\"name\":\"Learn Appium Automation with all of us Java by Rahul\",\r\n"
+				+ "\"isbn\":\""+isbn+"\",\r\n"
+				+ "\"aisle\":\""+aisle+"\",\r\n"
+				+ "\"author\":\"Johneryny foe\"\r\n"
+				+ "}";
+		return payload;
+	}
+
+
+
+******************************************************************************************************************************
+Understanding TestNG dataProvider for paramterization:
+
+package basics;
+
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
+
+import file.Payload;
+import file.ReUsableMethods;
+import io.restassured.RestAssured;
+import io.restassured.path.json.JsonPath;
+
+import static io.restassured.RestAssured.*;
+
+public class DDynamicJson {
+
+	@Test(dataProvider="Books")
+	public void addBook(String aisle,String isbn) {
+		RestAssured.baseURI = "http://216.10.245.166";
+		
+		String response = given().log().all().header("Content-Type","application/json").
+		body(Payload.addBook(aisle,isbn))
+		.when()
+		.post("/Library/Addbook.php")
+		.then().assertThat().statusCode(200)
+		.extract().response().asString();
+		
+		JsonPath js = ReUsableMethods.rawToJson(response);
+		String id = js.get("ID");
+		System.out.println(id);
+		
+		//after this we delete the book
+	}
+	
+	
+	@DataProvider(name="Books")
+	public Object[][] getData() {
+		//array -collection of elements
+		//multidimensional array - collection of arrays
+		
+		return new Object[][] {{"ojfgtha","87678"},{"qssdbma","864889"},{"nmzgakd","90568"}};
+	}
+}
+
+	public static String addBook(String aisle, String isbn) {
+		String payload =  "{\r\n"
+				+ "\r\n"
+				+ "\"name\":\"Learn Appium Automation with all of us Java by Rahul\",\r\n"
+				+ "\"isbn\":\""+isbn+"\",\r\n"
+				+ "\"aisle\":\""+aisle+"\",\r\n"
+				+ "\"author\":\"Johneryny foe\"\r\n"
+				+ "}";
+		return payload;
+	}
+******************************************************************************************************************************
+How to handle with static json payloads:
+
+Suppose say till now are either directly sending the payload inside body("")
+or sending through a method , which returns a payload
+
+say we have a need that we have to send the payload from a file
+
+body() inside ----> convert the file data to Bytes by passing file location and convert it to String
+body(new String(Files.readAllBytes(Paths.get("C:\\Users\\addPlace.json"))))
+
+public class EPayloadFromStaticFile {
+
+	public static void main(String[] args) throws IOException {
+		//Step1: set the baseURI
+				RestAssured.baseURI = "https://rahulshettyacademy.com";
+				
+				//step2
+				given().log().all().queryParam("key", "qaclick123").header("Content-Type","application/json")
+				.body(new String(Files.readAllBytes(Paths.get("C:\\Users\\addPlace.json")))).when().post("maps/api/place/add/json")
+				.then().log().all().assertThat().statusCode(200);
+	}
+}
+
+
+
+
+
+******************************************************************************************************************************
+
+
+
+
+
+
+
+
+
+******************************************************************************************************************************

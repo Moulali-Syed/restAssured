@@ -1,5 +1,7 @@
 package basics;
 
+import org.testng.Assert;
+
 import file.Payload;
 import io.restassured.path.json.JsonPath;
 
@@ -27,5 +29,29 @@ public class ComplexJsonParse {
 		System.out.println(js.get("courses["+i+"].price").toString());
 		System.out.println(courseTitles);
 		}
+		
+		//5. Print no of copies sold by RPA Course
+		for(int i=0;i<count;i++) {
+			String title = js.get("courses["+i+"].title");
+			if(title.equalsIgnoreCase("RPA")) {
+				int noOfCopies = js.getInt("courses["+i+"].copies");
+				System.out.println(noOfCopies + " copies of RPA");
+				break;
+			}
+		}
+//		int noOfCopies = js.getInt("courses[2].copies");
+//		System.out.println(noOfCopies);
+		
+		//6. Verify if Sum of all Course prices matches with Purchase Amount
+		int purchaseAmt = js.getInt("dashboard.purchaseAmount");
+		int sum = 0;
+		
+		for(int i=0;i<count;i++) {
+			int amt = js.getInt("courses["+i+"].price") * js.getInt("courses["+i+"].copies");
+			sum+=amt;
+		}
+		
+		Assert.assertEquals(purchaseAmt,sum);
+		System.out.println(purchaseAmt+" "+sum);
 	}
 }
