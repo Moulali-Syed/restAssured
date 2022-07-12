@@ -1,0 +1,237 @@
+Validating Rest API Responses:
+
+********************************************************************************************************************************
+To validate a key value from body
+
+equalTo method is present in hamcrest package which is a static package , so need to add import statement manually
+
+import static org.hamcrest.Matchers.*;
+
+body("key",equalTo("value"));
+
+to validate to write after then() , as below example
+.then().log().all().assertThat().statusCode(200).body("scope", equalTo("APP"));
+********************************************************************************************************************************
+it is very important to validate the server from where we are getting the data
+
+header("key","value");
+
+to validate to write after then() , as below example
+.then().log().all().assertThat().statusCode(200).body("scope", equalTo("APP")).header("server","Apache/2.4.41 (Ubuntu)");
+********************************************************************************************************************************
+instead of placing the complete json inside body("")
+
+we can create another package and place it in another class , in another package
+
+Create a class Payload
+with a static method
+
+package file;
+
+public class Payload {
+
+	public static String AddPlace() {
+		return "{\r\n"
+				+ "  \"location\": {\r\n"
+				+ "    \"lat\": -38.383494,\r\n"
+				+ "    \"lng\": 33.427362\r\n"
+				+ "  },\r\n"
+				+ "  \"accuracy\": 50,\r\n"
+				+ "  \"name\": \"Frontline house\",\r\n"
+				+ "  \"phone_number\": \"(+91) 983 893 3937\",\r\n"
+				+ "  \"address\": \"29, side layout, cohen 09\",\r\n"
+				+ "  \"types\": [\r\n"
+				+ "    \"shoe park\",\r\n"
+				+ "    \"shop\"\r\n"
+				+ "  ],\r\n"
+				+ "  \"website\": \"http://google.com\",\r\n"
+				+ "  \"language\": \"French-IN\"\r\n"
+				+ "}";
+	}
+}
+
+
+call that static method inside body(Payload.AddPlace())
+
+
+package basics;
+
+import static io.restassured.RestAssured.given;
+
+import io.restassured.RestAssured;
+import static org.hamcrest.Matchers.*;
+
+import file.Payload;
+
+
+public class CAssertionsOnJSONResponseBodyAndHeaders {
+
+	public static void main(String[] args) {
+
+		//Step1: set the baseURI
+		RestAssured.baseURI = "https://rahulshettyacademy.com";
+		
+		//step2
+		given().log().all().queryParam("key", "qaclick123").header("Content-Type","application/json")
+		.body(Payload.AddPlace()).when().post("maps/api/place/add/json")
+		.then().log().all().assertThat().statusCode(200).body("scope", equalTo("APP"))
+		.header("server","Apache/2.4.41 (Ubuntu)");
+	}
+}
+
+********************************************************************************************************************************
+What if we want to extract some part of response and store it in a variable , so that we can use it in future
+suppose i cretead a place and got place_id , i want to store it and use in update[PUT] api
+
+Add Place --> Update Place  ----> get place to validate if new address is present in response
+
+lets first store the whole response into a String using
+extract().response().asString()
+
+just remove log().all() after then 
+and try to print the response , using the variable where response is stored
+
+		String response = given().log().all().queryParam("key", "qaclick123").header("Content-Type","application/json")
+		.body(Payload.AddPlace()).when().post("maps/api/place/add/json")
+		.then().assertThat().statusCode(200).body("scope", equalTo("APP"))
+		.header("server","Apache/2.4.41 (Ubuntu)").extract().response().asString();
+		
+		System.out.println(response);
+		
+		//lets extract the place_id from response
+		//for this we have a class JsonPath , create object 
+		//it will take string and convert it to JSON , it has so many methods to parse Json
+
+		JsonPath js = new JsonPath(response);//for parsing json
+		String placeId = js.getString("place_id");//give the path of key whichever value we need from response
+		System.out.println(placeId);
+
+now we have stored the place_id , in a variable which we can use further in PUT api, to update some address details
+********************************************************************************************************************************
+Integrating Multiple APIs with common json response values:
+
+//in above we have extracted the placeId
+
+give the placeId inside the body of json request
+in the when() give put() with resource
+
+
+
+		//update place
+		String newAddress = "70 Summer walk, USA";
+		given().log().all().queryParam("key", "qaclick123").header("Content-Type","application/json")
+		.body("{\r\n"
+				+ "\"place_id\":\""+placeId+"\",\r\n"
+				+ "\"address\":\""+newAddress+"\",\r\n"
+				+ "\"key\":\"qaclick123\"\r\n"
+				+ "}")
+		.when().put("maps/api/place/update/json")
+		.then().assertThat().log().all().statusCode(200).body("msg", equalTo("Address successfully updated"));
+	
+	
+use get() method to retrieve placeId
+
+//get place
+		String getPlaceResponse = given().log().all().queryParam("key","qaclick123").queryParam("place_id", placeId)
+		.when().get("maps/api/place/get/json")
+		.then().assertThat().log().all().statusCode(200).extract().response().asString();
+		
+		JsonPath js1 = new JsonPath(getPlaceResponse);
+		String actualAddress = js1.getString("address");
+		
+		System.out.println(actualAddress);
+
+********************************************************************************************************************************
+Lets see the assertion :
+
+Assert.assertEquals(actualAddress, newAddress);
+
+********************************************************************************************************************************
+if we want to seperate the code related to JsonPath class , which is related to extract the response and convert to JSON
+and then extract the required key , value pair
+
+create a class ReUsableMethods.java inside file package
+
+package file;
+
+import io.restassured.path.json.JsonPath;
+
+public class ReUsableMethods {
+
+	
+	public static JsonPath rawToJson(String response) {
+		JsonPath js = new JsonPath(response);
+		return js;
+	}
+}
+
+//		JsonPath js1 = new JsonPath(getPlaceResponse);
+		//instead now use the reusable method
+		JsonPath js1 = ReUsableMethods.rawToJson(getPlaceResponse);
+
+********************************************************************************************************************************
+End to End - test of POST - PUT - GET
+
+package basics;
+
+import static io.restassured.RestAssured.given;
+
+import io.restassured.RestAssured;
+import io.restassured.path.json.JsonPath;
+
+import static org.hamcrest.Matchers.*;
+
+import org.testng.Assert;
+
+import file.Payload;
+import file.ReUsableMethods;
+
+
+public class CAssertionsOnJSONResponseBodyAndHeaders {
+
+	public static void main(String[] args) {
+
+		//Step1: set the baseURI
+		RestAssured.baseURI = "https://rahulshettyacademy.com";
+		
+		//step2
+		String response = given().log().all().queryParam("key", "qaclick123").header("Content-Type","application/json")
+		.body(Payload.AddPlace()).when().post("maps/api/place/add/json")
+		.then().assertThat().statusCode(200).body("scope", equalTo("APP"))
+		.header("server","Apache/2.4.41 (Ubuntu)").extract().response().asString();
+		
+		System.out.println(response);
+		
+		//lets extract the place_id from response
+		//for this we have a class JsonPath , create object 
+		//it will take string and convert it to JSON , it has so many methods to parse Json
+		JsonPath js = new JsonPath(response);//for parsing json
+		String placeId = js.getString("place_id");//give the path of key whichever value we need from response
+		System.out.println(placeId);
+		
+		
+		//update place
+		String newAddress = "70 Summer walk, USA";
+		given().log().all().queryParam("key", "qaclick123").header("Content-Type","application/json")
+		.body("{\r\n"
+				+ "\"place_id\":\""+placeId+"\",\r\n"
+				+ "\"address\":\""+newAddress+"\",\r\n"
+				+ "\"key\":\"qaclick123\"\r\n"
+				+ "}")
+		.when().put("maps/api/place/update/json")
+		.then().assertThat().log().all().statusCode(200).body("msg", equalTo("Address successfully updated"));
+	
+		//get place
+		String getPlaceResponse = given().log().all().queryParam("key","qaclick123").queryParam("place_id", placeId)
+		.when().get("maps/api/place/get/json")
+		.then().assertThat().log().all().statusCode(200).extract().response().asString();
+		
+//		JsonPath js1 = new JsonPath(getPlaceResponse);
+		//instead now use the reusable method
+		JsonPath js1 = ReUsableMethods.rawToJson(getPlaceResponse);
+		String actualAddress = js1.getString("address");
+		
+		System.out.println(actualAddress);
+		Assert.assertEquals(actualAddress, newAddress);
+	}
+}

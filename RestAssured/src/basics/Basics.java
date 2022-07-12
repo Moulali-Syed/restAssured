@@ -2,6 +2,8 @@ package basics;
 import io.restassured.RestAssured;
 import static io.restassured.RestAssured.*;//add this static import manually
 
+import file.Payload;
+
 public class Basics {
 	
 	public static void main(String[] args) {
