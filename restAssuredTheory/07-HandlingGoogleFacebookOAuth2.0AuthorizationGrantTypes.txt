@@ -1,0 +1,67 @@
+Introduction to OAuth 2.0 and different grant types:
+
+Testing OAuth 2.0 APIs using Postman and Rest Assured (Automation)
+
+What is OAuth 2.0?
+OAuth 2.0 comes with multiple grant types
+Authorization code  and client credentials are the most commonly used  grant types for OAuth
+Understand the flow of OAuth(Authorization code) grant type with real world example
+Backend implementation of Authorization code with different layers of security
+Plan for generating access token using APIs in postman for the complex flow of authorization code OAuth 2.0
+API testing with generated access token
+automate complete OAuth 2.0 flow using rest assured
+Shortcut to generate access token for OAuth in Postman
+How client credentials grant types are different from automation code grant type
+
+
+Why Applications rely on other(google or facebook) authentications?
+No Data breach headaches for application
+Need not maintain user profile data
+This also allows richer websites allowing disparate applications to talk to each other
+
+
+
+OAuth 2.0 is the industry standard protocol for authorization .OAuth 2.0 focuses on client developer simplicity while
+providing specific authorization flows for web applications , desktop applications , mobile phones and living room devices
+example : we can see the bookmyshow website , signIn we have with Google , Facebook - this is OAuth 2.0 grant type
+
+Client    		ClientID    			 clientSecretID  					 ResourceOwner	  Resource/Authorization Server
+bookmyshow		Id that identifies the client  Bookmyshow registers this with google     Human			Google
+
+bookmyshow registers with google servers and they will get clientid and clientsecretId from google
+then any person wants to login to bookmyshow , but thru google then google will send profile data to bookmyshow[password will not be shared]
+
+When we try to login with gmail , we will get unique clientid for each user
+
+Step1: User signin into google by hitting google authorization server and get code
+	 application will use this code to hit google resource server in backend to get access token 
+	 application grants access to user by validating access token
+
+*****************************************************************************************************************************************
+OAuth 2.0 Contract Details:
+
+GrantType						Authorization code
+redirect URL/Callback URL			https://rahulshettyacademy.com/getCourse.php
+Authorization server url			https://accounts.google.com/o/oauth2/v2/auth
+Access token url					https://www.googleapis.com/oauth2/v4/token
+Client ID						692183103107-p0m7ent2hk7suguv4vq22hjcfhcr43pj.apps.googleusercontent.com
+Client Secret					erZOWM9g3UtwNRj340YYaK_W
+Scope							https://www.googleapis.com/auth/userinfo.email
+State							Any random string
+How to pass oauth in request			Headers
+
+Mandatory fields for GetAuthorization Code Request ;
+End Point : Authorization server url
+Query Params:Scope, Auth_url, client_id, response_type, redirect_uri
+
+output : Code
+
+
+
+Mandatory fields for GetAccessToken Request :
+End point : Access token url
+Query Params :Code, client_id, 	client_secret, redirect_uri, grant_type
+Output : Access token
+
+*****************************************************************************************************************************************
+
