@@ -1,0 +1,210 @@
+*****************************************************************************************************************************************
+OAuth 2.0 Contract Details:
+
+GrantType						Authorization code
+redirect URL/Callback URL			https://rahulshettyacademy.com/getCourse.php
+Authorization server url			https://accounts.google.com/o/oauth2/v2/auth
+Access token url					https://www.googleapis.com/oauth2/v4/token
+Client ID						692183103107-p0m7ent2hk7suguv4vq22hjcfhcr43pj.apps.googleusercontent.com
+Client Secret					erZOWM9g3UtwNRj340YYaK_W
+Scope							https://www.googleapis.com/auth/userinfo.email
+State							Any random string
+How to pass oauth in request			Headers
+
+Mandatory fields for GetAuthorization Code Request ;
+End Point : Authorization server url
+Query Params:Scope, Auth_url, client_id, response_type, redirect_uri
+
+output : Code
+
+
+
+Mandatory fields for GetAccessToken Request :
+End point : Access token url
+Query Params :Code, client_id, 	client_secret, redirect_uri, grant_type
+Output : Access token
+
+*****************************************************************************************************************************************
+
+To get the authorization code we need to signin through browser so add selenium dependency
+
+add these dependencies in pom.xml file
+
+		<!-- https://mvnrepository.com/artifact/org.seleniumhq.selenium/selenium-java -->
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-java</artifactId>
+			<version>4.1.4</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/io.github.bonigarcia/webdrivermanager -->
+		<dependency>
+			<groupId>io.github.bonigarcia</groupId>
+			<artifactId>webdrivermanager</artifactId>
+			<version>5.1.0</version>
+		</dependency>
+
+
+package basics;
+
+import static io.restassured.RestAssured.given;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+import io.github.bonigarcia.wdm.WebDriverManager;
+import io.restassured.RestAssured;
+import io.restassured.path.json.JsonPath;
+public class GOAuthAutomation2dot0 {
+
+	
+	public static void main(String[] args) throws InterruptedException {
+		
+		/*
+		//Because of latest updates by google , we cannot automate the authentication
+		//so we have to do it manually
+		//get authorization code - for this we need browser invocation
+		WebDriverManager.chromedriver().setup();
+		WebDriver driver = new ChromeDriver();
+		driver.get("");
+		driver.findElement(By.cssSelector("input[type='email']")).sendKeys("demo123");
+		driver.findElement(By.cssSelector("input[type='email']")).sendKeys(Keys.ENTER);
+		Thread.sleep(3000);
+		driver.findElement(By.cssSelector("input[type='password']")).sendKeys("demo123");
+		driver.findElement(By.cssSelector("input[type='password']")).sendKeys(Keys.ENTER);
+		Thread.sleep(4000);
+		String url = driver.getCurrentUrl();
+		*/
+		String url = "getThis Url by doing manually";
+		String partialCode = url.split("code=")[1];
+		String code = partialCode.split("&scope")[0];
+		System.out.println(code);
+		
+		
+		//get access token - its a post request
+		String accessTokenResponse = given().urlEncodingEnabled(false).queryParam("code", code)
+		.queryParams("client_id", "692183103107-p0m7ent2hk7suguv4vq22hjcfhcr43pj.apps.googleusercontent.com")
+		.queryParams("client_secret","erZOWM9g3UtwNRj340YYaK_W")
+		.queryParams("redirect_uri","https://rahulshettyacademy.com/getCourse.php")
+		.queryParams("grant_type","authorization_code")
+		.when().log().all()
+		.post("https://www.googleapis.com/oauth2/v4/token").asString();
+		
+		JsonPath js = new JsonPath(accessTokenResponse);
+		String accessToken  = js.getString("access_token");
+		
+		
+		//using the above generated access token
+		
+		String response = given().queryParam("access_token", "accessToken")
+		.when().log().all()
+		.get("https://rahulshettyacademy.com/getCourse.php").asString();
+		
+		System.out.println(response);
+		
+	}
+}
+
+*****************************************************************************************************************************************
+package basics;
+
+import static io.restassured.RestAssured.given;
+
+import java.util.ArrayList;
+
+import java.util.Arrays;
+
+import java.util.List;
+
+import org.openqa.selenium.By;
+
+import org.openqa.selenium.Keys;
+
+import org.openqa.selenium.WebDriver;
+
+import org.openqa.selenium.chrome.ChromeDriver;
+
+import io.restassured.parsing.Parser;
+
+import io.restassured.path.json.JsonPath;
+
+import io.restassured.response.Response;
+
+import io.restassured.response.ResponseBody;
+
+public class test1 {
+
+	public static void main(String[] args) throws InterruptedException {
+
+// TODO Auto-generated method stub
+
+		String url = "https://rahulshettyacademy.com/getCourse.php?state=verifyfjdss&code=4%2FvAHBQUZU6o4WJ719NrGBzSELBFVBI9XbxvOtYpmYpeV47bFVExkaxWaF_XR14PHtTZf7ILSEeamywJKwo_BYs9M&scope=email+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email+openid&authuser=0&session_state=0c32992f0d47e93d273922018ade42d1072b9d1f..a35c&prompt=none#";
+
+		String partialcode = url.split("code=")[1];
+
+		String code = partialcode.split("&scope")[0];
+
+		System.out.println(code);
+
+		String response =
+
+				given()
+
+						.urlEncodingEnabled(false)
+
+						.queryParams("code", code)
+
+						.queryParams("client_id",
+								"692183103107-p0m7ent2hk7suguv4vq22hjcfhcr43pj.apps.googleusercontent.com")
+
+						.queryParams("client_secret", "erZOWM9g3UtwNRj340YYaK_W")
+
+						.queryParams("grant_type", "authorization_code")
+
+						.queryParams("state", "verifyfjdss")
+
+						.queryParams("session_state", "ff4a89d1f7011eb34eef8cf02ce4353316d9744b..7eb8")
+
+						// .queryParam("scope",
+						// "email+openid+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email")
+
+						.queryParams("redirect_uri", "https://rahulshettyacademy.com/getCourse.php")
+
+						.when().log().all()
+
+						.post("https://www.googleapis.com/oauth2/v4/token").asString();
+
+// System.out.println(response);
+
+		JsonPath jsonPath = new JsonPath(response);
+
+		String accessToken = jsonPath.getString("access_token");
+
+		System.out.println(accessToken);
+
+		String r2 = given().contentType("application/json").
+
+				queryParams("access_token", accessToken).expect().defaultParser(Parser.JSON)
+
+				.when()
+
+				.get("https://rahulshettyacademy.com/getCourse.php")
+
+				.asString();
+
+		System.out.println(r2);
+
+	}
+
+}
+*****************************************************************************************************************************************
+
+
+
+
+
+
+
+*****************************************************************************************************************************************
