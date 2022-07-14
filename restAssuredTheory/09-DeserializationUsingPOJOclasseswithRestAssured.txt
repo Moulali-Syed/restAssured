@@ -1,0 +1,318 @@
+Serialization and Deserialization of request/response with POJO classes:
+
+Serialization in rest assured context is a process of converting a java object into request body(payload)
+
+Rest Assured also supports deserialization by converting response body back to java object
+
+Advantages:
+Easy to parse and extract response(Json/XML) values if they are wrapped as java object
+User friendly methods can be created which makes code more readable
+
+Design Approach:
+Java object is constructed with support of POJO classes
+POJO classes are created based on the request /response payload
+
+What additional libraries required?
+For json you need to have either jackson , jackson2 , gson or johnzon in the classpath and for XML you need JAXB
+
+
+
+******************************************************************************************************************************************************
+Plain old java objects:POJO classes
+
+suppose consider below is the payload we have to send
+
+{
+"message":"Hello"
+}
+
+for every key create a private instance variable and a public get and set methods , to access and set value to it
+
+Serialization Demo below:
+
+package pojos;
+
+/*
+ {
+"message":"Hello",
+"greet":"Hi"
+ }
+ 
+ */
+public class AMessage {
+
+	private String message;
+	private String greet;
+	
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+	
+	public void setGreet(String greet) {
+		this.greet = greet;
+	}
+
+	public String getGreet() {
+		return greet;
+	}
+}
+
+/*
+ * now with above code we have created , below json with out any values 
+ {
+"message":"",
+"greet":""
+ }
+ */
+
+/*
+//create java objects
+Message m = new Message();
+m.setMessage("Hello");
+m.setGreet("Hi");
+*/
+
+
+//Now we can send the object to rest assured code
+given().
+	body(m).
+when().
+	post("/message")
+******************************************************************************************************************************************************
+
+Deserialization:  get values from the response - getter methods play  a major role
+
+Message m = new Message();
+m.getMessage();
+m.getGreet();
+
+
+Inorder to deserialize and work with complex json responses , we have to use additional libraries
+search jackson databind maven , and add below 3 dependencies
+
+<!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
+<dependency>
+    <groupId>com.fasterxml.jackson.core</groupId>
+    <artifactId>jackson-databind</artifactId>
+    <version>2.13.3</version>
+</dependency>
+
+<!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core -->
+<dependency>
+    <groupId>com.fasterxml.jackson.core</groupId>
+    <artifactId>jackson-core</artifactId>
+    <version>2.13.3</version>
+</dependency>
+
+<!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-annotations -->
+<dependency>
+    <groupId>com.fasterxml.jackson.core</groupId>
+    <artifactId>jackson-annotations</artifactId>
+    <version>2.13.3</version>
+</dependency>
+
+and then add gson dependecy
+
+<!-- https://mvnrepository.com/artifact/com.google.code.gson/gson -->
+<dependency>
+    <groupId>com.google.code.gson</groupId>
+    <artifactId>gson</artifactId>
+    <version>2.9.0</version>
+</dependency>
+
+
+paste the complex json response into a jsoneditoronline.org
+and see the proper response tags
+
+No matter we are doing serialization or deserialization , first create POJO classes
+
+say we have a response as below
+
+url: website.com
+services: projectSupport
+expertise: Automation
+courses {3}
+instructor: RahulShetty
+linkedIn: https://www.linkedIn.com/in
+
+To create POJO
+define private variables of all the above 6 keys
+Then right click - Sources - Generate getters and setters
+
+package pojos;
+
+public class BGetCourse {
+
+	private String url;
+	private String services;
+	private String automation;
+	private String Courses;
+	private String instructor;
+	private String linkedIn;
+	public String getUrl() {
+		return url;
+	}
+	public void setUrl(String url) {
+		this.url = url;
+	}
+	public String getServices() {
+		return services;
+	}
+	public void setServices(String services) {
+		this.services = services;
+	}
+	public String getAutomation() {
+		return automation;
+	}
+	public void setAutomation(String automation) {
+		this.automation = automation;
+	}
+	public String getCourses() {
+		return Courses;
+	}
+	public void setCourses(String courses) {
+		Courses = courses;
+	}
+	public String getInstructor() {
+		return instructor;
+	}
+	public void setInstructor(String instructor) {
+		this.instructor = instructor;
+	}
+	public String getLinkedIn() {
+		return linkedIn;
+	}
+	public void setLinkedIn(String linkedIn) {
+		this.linkedIn = linkedIn;
+	}
+}
+
+
+
+under courses {3}
+we have 3 sub json , and in addition each json is a nested array of json
+
+courses: {
+	"webAutomation" : [
+		{
+			"courseTitle": "Selenium WebDriver Java",
+			"price" : "50"
+		},
+		{
+			"courseTitle": "Cypress",
+			"price" : "40"		
+		},
+		{
+			"courseTitle": "Protractor",
+			"price" : "40"
+		}	
+	],
+	"api"		    : [
+		{
+			"courseTitle": "Rest Assured",
+			"price" : "50"
+		},
+		{
+			"courseTitle": "SOAP UI",
+			"price" : "40"		
+		},
+	],
+	"mobile"        : [
+		{
+			"courseTitle": "Rest Assured",
+			"price" : "50"
+		},	
+	]
+}
+
+
+"courses": {3}
+  "webAutomation": [3],
+  "api": [2],
+  "mobile": [1]
+
+in courses we have 3 child ,lets create pojo for courses
+
+package pojos;
+
+//after creating this go back to main class change return type of Courses
+public class CCourses {
+
+	private String webAutomation;
+	private String api;
+	private String mobile;
+	public String getWebAutomation() {
+		return webAutomation;
+	}
+	public void setWebAutomation(String webAutomation) {
+		this.webAutomation = webAutomation;
+	}
+	public String getApi() {
+		return api;
+	}
+	public void setApi(String api) {
+		this.api = api;
+	}
+	public String getMobile() {
+		return mobile;
+	}
+	public void setMobile(String mobile) {
+		this.mobile = mobile;
+	}
+}
+
+//modify the GetCourse class
+package pojos;
+
+public class BGetCourse {
+
+	private String url;
+	private String services;
+	private String automation;
+	private CCourses Courses;
+	private String instructor;
+	private String linkedIn;
+	public String getUrl() {
+		return url;
+	}
+	public void setUrl(String url) {
+		this.url = url;
+	}
+	public String getServices() {
+		return services;
+	}
+	public void setServices(String services) {
+		this.services = services;
+	}
+	public String getAutomation() {
+		return automation;
+	}
+	public void setAutomation(String automation) {
+		this.automation = automation;
+	}
+	public CCourses getCourses() {
+		return Courses;
+	}
+	public void setCourses(CCourses courses) {
+		Courses = courses;
+	}
+	public String getInstructor() {
+		return instructor;
+	}
+	public void setInstructor(String instructor) {
+		this.instructor = instructor;
+	}
+	public String getLinkedIn() {
+		return linkedIn;
+	}
+	public void setLinkedIn(String linkedIn) {
+		this.linkedIn = linkedIn;
+	}
+}
+
+
+******************************************************************************************************************************************************

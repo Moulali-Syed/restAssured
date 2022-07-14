@@ -201,10 +201,18 @@ public class test1 {
 }
 *****************************************************************************************************************************************
 
+Client Credentials Grant Type: - O Auth 1.0
+
+When we need information of our tweets in twitter account to our web application 
+we can use client credentials grant type , as there is no other human intervention in between
 
 
+we just need access token
 
-
+Mandatory fields for GetAccessToken Request :
+End point : Access token url
+Query Params : client_id, 	client_secret, grant_type
+Output : Access token
 
 
 *****************************************************************************************************************************************
