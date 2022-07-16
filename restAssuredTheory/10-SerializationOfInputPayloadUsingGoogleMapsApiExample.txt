@@ -1,0 +1,183 @@
+convert java object to Json body  - Serialization
+
+
+Lets first create a basic test for google maps api without passing payload
+
+package pojosSerialization;
+
+import io.restassured.RestAssured;
+import io.restassured.response.Response;
+
+import static io.restassured.RestAssured.*;
+public class SerializeTest {
+
+	public static void main(String[] args) {
+		RestAssured.baseURI = "https://rahulshettyacademy.com";
+		
+		Response res =  given().queryParam("key","qaclick123")
+		.body("")
+		.when().post("/maps/api/place/add/json")
+		.then().assertThat().statusCode(200).extract().response();
+		
+		String responseString = res.asString();
+	}
+}
+========================================================================================================================================================================
+Lets create POJO for JSON
+
+{
+  "location": {
+    "lat": -38.383494,
+    "lng": 33.427362
+  },
+  "accuracy": 50,
+  "name": "Frontline house",
+  "phone_number": "(+91) 983 893 3937",
+  "address": "29, side layout, cohen 09",
+  "types": [
+    "shoe park",
+    "shop"
+  ],
+  "website": "http://google.com",
+  "language": "French-IN"
+}
+
+
+package pojosSerialization;
+
+import java.util.List;
+
+public class TAddPlace {
+
+	private ULocation location;
+	private String accuracy;
+	private String name;
+	private String phoneNumber;
+	private String address;
+	private List<String> types;
+	private String website;
+	private String language;
+	
+	
+	public ULocation getLocation() {
+		return location;
+	}
+	public void setLocation(ULocation location) {
+		this.location = location;
+	}
+	public String getAccuracy() {
+		return accuracy;
+	}
+	public void setAccuracy(String accuracy) {
+		this.accuracy = accuracy;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public String getPhoneNumber() {
+		return phoneNumber;
+	}
+	public void setPhoneNumber(String phoneNumber) {
+		this.phoneNumber = phoneNumber;
+	}
+	public String getAddress() {
+		return address;
+	}
+	public void setAddress(String address) {
+		this.address = address;
+	}
+	public List<String> getTypes() {
+		return types;
+	}
+	public void setTypes(List<String> types) {
+		this.types = types;
+	}
+	public String getWebsite() {
+		return website;
+	}
+	public void setWebsite(String website) {
+		this.website = website;
+	}
+	public String getLanguage() {
+		return language;
+	}
+	public void setLanguage(String language) {
+		this.language = language;
+	}
+	
+	
+}
+
+package pojosSerialization;
+
+public class ULocation {
+
+	private double lat;
+	private double lng;
+
+	public double getLat() {
+		return lat;
+	}
+
+	public void setLat(double lat) {
+		this.lat = lat;
+	}
+
+	public double getLng() {
+		return lng;
+	}
+
+	public void setLng(double lng) {
+		this.lng = lng;
+	}
+
+}
+========================================================================================================================================================================
+Complete End to End testcase with serialization implementation:
+
+
+package pojosSerialization;
+
+import static io.restassured.RestAssured.given;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import io.restassured.RestAssured;
+import io.restassured.response.Response;
+public class SerializeTest {
+
+	public static void main(String[] args) {
+		
+		TAddPlace p  = new TAddPlace();
+		p.setAccuracy(50);
+		p.setAddress("29, side layout, cohen 09");
+		p.setLanguage("French-IN");
+		p.setPhoneNumber("(+91) 983 893 3937");
+		p.setWebsite("https://rahulshettyacademy.com");
+		p.setName("Frontline house");
+		List<String> myList = new ArrayList<>();
+		myList.add("shoe-park");
+		myList.add("shop");
+		p.setTypes(myList);
+		ULocation l = new ULocation();
+		l.setLat(-38.383494);
+		l.setLng(33.427362);
+		p.setLocation(l);
+		RestAssured.baseURI = "https://rahulshettyacademy.com";
+		
+		Response res =  given().log().all().queryParam("key","qaclick123")
+		.body(p)
+		.when().post("/maps/api/place/add/json")
+		.then().assertThat().statusCode(200).extract().response();
+		
+		String responseString = res.asString();
+		System.out.println(responseString);
+	}
+}
+
+========================================================================================================================================================================
+========================================================================================================================================================== 
