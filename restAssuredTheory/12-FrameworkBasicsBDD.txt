@@ -1,0 +1,188 @@
+Cucumber BDD API Test Framework developement master plan
+
+Prerequsites:
+RestAssured Testing Basics
+Serialization and Deserialization using POJO classes
+Request and Response Spec Builders
+Maven Build Management basics
+
+
+Maven is a software project management and build management tool for java frameworks
+
+Why maven?
+central repo to get dependencies
+maintaining common structure across organization
+flexibility in integrating with CI tools
+plugins for test framework  execution
+
+
+no need to set jars in all the machines , maven will take care of what ever jars are needed , their dependencies will be added in pom.xml file
+many teams were work , to maintain a consistent framework structure , maven suggests a template based on the testing project , development project
+
+download maven
+we must have java , and set javapath in system variables
+download apache-maven-version-bin.zip
+unzip and copy path till before bin folder
+goto env variables add MAVEN_HOME - path
+Then copy the bin path and add it in System variables - path variables - paste the bin folder path
+
+now goto cmd - mvn --version
+u will see the maven configuration , thus maven is set successfully in our machine
+
+maven terminologies:
+groupId: to identify the project uniquely - like project
+artifactId:identify a particular sub project from the groupId we provided - like sub project
+
+archetype - to choose a template - we use maven-archetype-quickstart
+
+
+Create a maven project:
+mvn archetype:generate -DgroupId=ToolsQA -DartifactId=DemoMavenProject -DarchetypeArtifactId=maven-archetype-quickstart -DinteractiveMode=false
+
+then mvn eclipse:eclipse
+this above line creates a .class file , which helps to integrate the maven project created thru cmd , to integrate with eclipse
+
+Now we can simply create thru eclipse only , instead of creating the above way
+
+in eclipse go to windows - preferences and check if maven is present ,then we can use maven project in our eclipse
+in maven - user settings we can see the path where our jars are getting stored in our local machine - it will in .m2 folder
+
+
+Cucumber Basics:
+is a BDD framework for running automated tests
+cucumber doesnot automate ur testcases
+
+cucumber will data drive,parameterize , execution controls, hooks , reports , automation utilities and many more
+cucumber supports any test web,api,mobile,unit testing which is written in java/ruby supported by cucumber
+testcases/requirements are defined with BDD methodology (gherkin syntax)
+not much coding is required to implement framework functionalities
+
+
+
+what is Gherkin?
+it is a business readable domain specific langauge that lets u describe software behaviour
+example: pop up message is displayed when buttons are clicked and errors are gone
+
+
+keywords used in cucumber: Scenario , Feature , Feature file , Scenario , Scenario Outline ,Step Definitions
+
+
+in cucumber testcases is called as scenarios
+given - preconditons are mentioned in given keyword
+when - the purpose of when steps is to describe the user action
+then - the purpose of then steps is to observe the expected output , the observation should be related to business value/benefit of your feature description
+
+
+Scenario: Make online due payment
+Given user is on pay credit card page 
+When user fills details and select minimum amount option
+And user clicks on pay button
+Then credit card confirmation page is displayed
+
+And - for positive statements , in addition to previous steps
+But - Negative statements in addition to previous steps
+
+
+
+Feature - represent business requirement
+Feature file acts as a test suite which consists of all Scenarios
+
+in cucumber feature file contains scenarios. we can simply create feature file with .feature extension
+Scenarios belongng to specific area of application will be grouped into one feature file
+The text that follws the Feature keyword , and is in same line is the Title of the Feature File
+feature file should conatin either Scenario or Scenario Outline , the naming conventions for feature files should be lowercase with .feature extension
+
+
+Cucumber project setup
+add plugin - help - eclipse market place - Natural , Cucumber eclipse plugin
+create a maven project -  select maven-archetype-quickstart template , provide groupid and artifact id - thus cucumber template is created
+
+add cucumber dependencies:
+cucumber-java and cucumber-junit  
+
+
+terminologies of automation:
+feature files - testcase in plain englisg langauge
+Step Definitions - for every line of code we define automation code
+TestRunner - triggers the testcases
+
+
+create  a package inside src/test/java
+features package - create a file , Login.feature
+
+Feature: Application Login
+Scenario: HomePage default Login
+Given user is on landingPage
+When user login into app with username and password
+Then homepage is populated
+And Cards are displayed
+
+
+create a package - stepDefinitions
+create a java file - Login.java
+
+public class Login{
+
+	@Given("^User is on landingPage$")
+	public void user_is_on_landingPage(){
+
+	}
+	@When("^user login into app with username and password$")
+	public void user_login_to_app(){
+
+	}
+	@Then("^homepage is populated$")
+	public void homePage_load(){
+
+	}
+	@Then("^Cards are displayed$")
+	public void cards_display(){
+
+	}
+
+}
+
+
+use tidygherkin plugin to generate stepDefinition syntax from feature file steps
+
+
+TestRunner:
+create a package - cucumberOptions
+create a class TestRunner
+give info about stepDef , feature file locations
+
+@RunWith(Cucumber.class)
+@CucumberOptions(features="src/test/java/features",glue="stepDefinition")
+public class TestRunner{
+
+
+}
+
+
+importance of regular expression in feature files:
+if tidy gherkin is not present , run the TestRunner class , we will get ready made template for all stepDefinition steps , use it and implement
+
+Feature: Application Login
+Scenario: HomePage default Login
+Given user is on landingPage
+When user login into app with "tim" and "1234"
+Then homepage is populated
+And Cards are displayed
+
+Feature: Application Login
+Scenario: HomePage default Login
+Given user is on landingPage
+When user login into app with "tum" and "4321"
+Then homepage is populated
+And Cards are not displayed
+
+use the regular expression syntax , how to reuse functions with different data:
+
+
+	@When("^user login into app with \"([^\"]*)\" and \"([^\"]*)\"$")
+	public void user_login_to_app(String username,String password){
+
+	}
+
+
+how to reuse functions with different data:

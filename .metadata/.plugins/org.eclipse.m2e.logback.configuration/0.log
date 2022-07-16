@@ -2015,3 +2015,5 @@ java.net.URISyntaxException: Illegal character in path at index 16: file:/D:/Pro
 2022-07-17 01:23:45,423 [Worker-37: Building] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Testing\RestAssuredJava\RestAssured\src\test\resources
 2022-07-17 01:24:08,705 [Worker-40: Building] WARN  o.e.m.c.i.embedder.EclipseLogger - Using platform encoding (Cp1252 actually) to copy filtered resources, i.e. build is platform dependent!
 2022-07-17 01:24:08,707 [Worker-40: Building] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Testing\RestAssuredJava\RestAssured\src\main\resources
+2022-07-17 01:24:08,708 [Worker-40: Building] WARN  o.e.m.c.i.embedder.EclipseLogger - Using platform encoding (Cp1252 actually) to copy filtered resources, i.e. build is platform dependent!
+2022-07-17 01:24:08,710 [Worker-40: Building] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Testing\RestAssuredJava\RestAssured\src\test\resources
