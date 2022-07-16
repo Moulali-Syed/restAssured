@@ -1,0 +1,140 @@
+Notes:
+Request and Response Spec Builders :
+
+
+
+ADD PLACE :
+
+RestAssured.baseURI="XXXX";
+
+Response res=given().queryParam("key", "qaclick123").header("Content-Type","application/json")
+
+.body(add_place_json)
+.when().post("/maps/api/place/add/json").
+then().assertThat().statusCode(200). contentType("application/json")
+extract().response();
+
+
+GET_PLACE
+RestAssured.baseURI="XXXX";
+
+Response res=given().queryParam("key", "qaclick123").header("Content-Type","application/json")
+when (). get("/maps/api/place/get/json").
+then().assertThat().statusCode(200).contentType("application/json").extract().response();
+
+DELETE_PLACE 
+RestAssured.baseURI="XXXX";
+
+Response res=given().queryParam("key", "qaclick123").header("Content-Type","application/json")
+.body(“delete_Place_json”)
+.when().post("/maps/api/place/delete/json").
+then().assertThat().statusCode(200). contentType("application/json").extract().response();
+
+Build   -Request Spec Builder-
+req=	new RequestSpecBuilder().setContentType(ContentType.JSON)			
+		.setBaseUri("XXXX")
+		.addQueryParam("key","qaclick123")
+		.build();
+given().spec (req ).body(add_place_json) .post(“/maps/api/place/add/json).
+
+
+
+Build Response Spec Builder:
+res = new ResponseSpecBuilder().expectStatusCode(200).expectContentType(ContentType.JSON). build();
+
+then().spec(re).extract().response();
+
+Rewriting Test with Request and Response Spec Builder :
+given().spec(req).body(add_place_json).post(“/maps/api/place/add/json).
+then().spec(res).extract().response();
+***************************************************************************************************************************************
+We can see in add , get ,delete apis above they have code which is common in all
+
+given().queryParam("key", "qaclick123").header("Content-Type","application/json")
+
+cant we generalize the above line and call the same in all the apis
+
+for this we have Request Spec Builder
+what ever is common to all requests , u add them to RequestSpecBuilder object , and pass its reference to the requests
+
+//setting common properties to Request SpecBuilder
+req=	new RequestSpecBuilder().setContentType(ContentType.JSON)			
+		.setBaseUri("XXXX")
+		.addQueryParam("key","qaclick123")
+		.build();
+
+//using the spec Builder reference
+given().spec (req ).body(add_place_json) .post(“/maps/api/place/add/json).
+
+
+
+like request spec Builder , we have response spec Builder , we have some common validations for all api tests
+res = new ResponseSpecBuilder().expectStatusCode(200).expectContentType(ContentType.JSON). build();
+
+passing response Spec Builder object after then()
+then().spec(res).extract().response();
+
+
+***************************************************************************************************************************************
+Practical Implementation of Spec Builders and optimize code:
+
+package specBuilder;
+
+import static io.restassured.RestAssured.given;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import io.restassured.RestAssured;
+import io.restassured.builder.RequestSpecBuilder;
+import io.restassured.builder.ResponseSpecBuilder;
+import io.restassured.http.ContentType;
+import io.restassured.response.Response;
+import io.restassured.specification.RequestSpecification;
+import io.restassured.specification.ResponseSpecification;
+public class SpecBuilderTest {
+
+	public static void main(String[] args) {
+		
+		TAddPlace p  = new TAddPlace();
+		p.setAccuracy(50);
+		p.setAddress("29, side layout, cohen 09");
+		p.setLanguage("French-IN");
+		p.setPhoneNumber("(+91) 983 893 3937");
+		p.setWebsite("https://rahulshettyacademy.com");
+		p.setName("Frontline house");
+		List<String> myList = new ArrayList<>();
+		myList.add("shoe-park");
+		myList.add("shop");
+		p.setTypes(myList);
+		ULocation l = new ULocation();
+		l.setLat(-38.383494);
+		l.setLng(33.427362);
+		p.setLocation(l);
+		RestAssured.baseURI = "https://rahulshettyacademy.com";
+		
+		//request spec builder
+		RequestSpecification req =   new RequestSpecBuilder().setBaseUri("https://rahulshettyacademy.com")
+		.addQueryParam("key", "qaclick123")
+		.setContentType(ContentType.JSON).build();
+		
+		
+		RequestSpecification res = given().spec(req)
+				.body(p);
+		
+		//response spec builder
+		ResponseSpecification resspec  = new ResponseSpecBuilder().expectStatusCode(200)
+		.expectContentType(ContentType.JSON).build();
+		
+		
+		Response resp =  res
+		.when().post("/maps/api/place/add/json")
+		.then().spec(resspec).extract().response();
+		
+		String responseString = resp.asString();
+		System.out.println(responseString);
+	}
+}
+
+
+***************************************************************************************************************************************
